@@ -1,8 +1,9 @@
 mod app_state;
+mod auth_user;
+mod chat;
 mod configuration;
 mod routes;
 mod types;
-mod auth_user;
 
 use routes::create_app;
 use std::net::SocketAddr;

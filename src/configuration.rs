@@ -3,6 +3,7 @@ use serde::Deserialize;
 pub struct Settings {
     pub database_url: String,
     pub admin_email: String,
+    pub deepseek_token: String,
 }
 
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {

@@ -71,6 +71,7 @@ Authorization: Bearer <token>
 application/json
 {
   agent_id: Uuid,
+  conversation_id: Uuid,
   content: String,
 }
 
@@ -82,7 +83,14 @@ HTTP OK
   name: String,
   emotion: String,
   favorability: i32,
+  (if vip) mind: String,
 }
 
 HTTP UNAUTHORIZED (或其他)
-fault: String, // 错误原因
+{
+  content: String,
+  name: String,
+  emotion: String,
+  favorability: i32,
+  (if vip) mind: String,
+}
