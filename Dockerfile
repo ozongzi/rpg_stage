@@ -29,20 +29,15 @@ RUN cargo build --release --bin rpg_stage
 FROM node:20-alpine AS frontend_builder
 WORKDIR /client
 
-# 先复制 package 文件，利用缓存
-COPY client/package*.json ./
-
-RUN npm install
-
-# 再复制源码
 COPY client/ .
 
+RUN npm install
 RUN npm run build
 
 # ===============================
 # Runtime
 # ===============================
-FROM debian:bookworm-slim AS runtime
+FROM rust:latest AS runtime
 WORKDIR /app
 
 RUN apt-get update -y \
