@@ -24,19 +24,20 @@ ENV SQLX_OFFLINE=true
 RUN cargo build --release --bin rpg_stage
 
 # ===============================
-# Frontend builder (Deno)
+# Frontend builder (Node)
 # ===============================
-FROM denoland/deno:alpine AS frontend_builder
+FROM node:20-alpine AS frontend_builder
 WORKDIR /client
 
-# 只复制前端目录，避免破坏缓存
+# 先复制 package 文件，利用缓存
+COPY client/package*.json ./
+
+RUN npm install
+
+# 再复制源码
 COPY client/ .
 
-# 如果有依赖缓存
-RUN deno install
-
-# 执行构建
-RUN deno run build
+RUN npm run build
 
 # ===============================
 # Runtime
@@ -48,10 +49,10 @@ RUN apt-get update -y \
     && apt-get install -y --no-install-recommends openssl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# 拷贝 Rust binary
+# Rust binary
 COPY --from=builder /app/target/release/rpg_stage rpg_stage
 
-# 拷贝前端 dist
+# 前端 dist
 COPY --from=frontend_builder /client/dist ./client/dist
 
 ENV APP_ENVIRONMENT=production
