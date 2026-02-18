@@ -1,7 +1,8 @@
+#[allow(unused)]
 #[derive(Clone, Debug)]
 pub struct DbMessage {
-    pub id: uuid::Uuid,
-    pub conversation_id: uuid::Uuid,
+    pub id: Uuid,
+    pub conversation_id: Uuid,
     pub role: String,
     pub content: Option<String>,
     pub name: Option<String>,

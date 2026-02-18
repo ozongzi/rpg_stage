@@ -1,9 +1,9 @@
 use crate::domains::{AgentState, ChatAgent, MetaAgent};
 use crate::errors::{AppError, AppResult};
-use crate::repositories::session_repository::SessionRepository;
 use axum::http::StatusCode;
 use serde_json::json;
 use sqlx::PgPool;
+use tracing::info;
 use uuid::Uuid;
 
 #[derive(Clone)]
@@ -24,6 +24,7 @@ impl AgentRepository {
         let record = sqlx::query!(r#"SELECT user_id FROM agents WHERE id = $1"#, agent_id)
             .fetch_optional(&self.pool)
             .await?;
+        info!("user_id = {}, agent_id = {}", user_id, agent_id);
 
         match record {
             Some(r) if r.user_id == user_id => Ok(()),
@@ -112,6 +113,25 @@ impl AgentRepository {
         .await?;
 
         Ok(records)
+    }
+
+    pub async fn update_agent_emotion_and_favorability(
+        &self,
+        agent_id: Uuid,
+        emotion: String,
+        favorability: i32,
+    ) -> AppResult<()> {
+        info!("update agent {} emotion = {} and favorability = {}", agent_id, emotion, favorability);
+        sqlx::query!(
+            r#"update agents set emotion = $1, favorability = $2 where id = $3"#,
+            emotion,
+            favorability,
+            agent_id
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
     }
 
     pub async fn fetch_agent_state_by_user_id_and_agent_id(

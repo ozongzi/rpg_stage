@@ -1,22 +1,19 @@
 use super::handlers::*;
 
-use axum::Router;
-use axum::routing::{delete, get, patch, post};
-use sqlx::PgPool;
-
 use crate::app_state::AppState;
 use crate::configuration::get_configuration;
 use crate::services::Services;
+use axum::Router;
+use axum::routing::{delete, get, post};
+use sqlx::PgPool;
+use tower_http::cors::{Any, CorsLayer};
 pub async fn create_app() -> Router {
     let configuration = get_configuration().unwrap();
 
     let db = PgPool::connect(&configuration.database_url).await.unwrap();
 
     let services = Services::install(&db, configuration.deepseek_token.clone());
-    let app_state = AppState {
-        services,
-        configuration,
-    };
+    let app_state = AppState { services };
 
     Router::new()
         // 健康检查
@@ -34,6 +31,7 @@ pub async fn create_app() -> Router {
         // .route("/users/{id}", delete(delete_user)) // 管理员删除
         // =========== metadata ==========
         .route("/agent_metas", post(create_agent_meta))
+        .route("/agent_metas", get(list_agent_meta))
         // // ========== Agents ==========
         .route("/agents", post(create_agent))
         .route("/agents", get(list_agents))
@@ -55,5 +53,11 @@ pub async fn create_app() -> Router {
         // // ========== Admin ==========
         // .route("/admin/sessions", get(list_sessions))
         // .route("/admin/sessions/{id}", delete(force_logout))
+        .layer(
+            CorsLayer::new()
+                .allow_origin(Any)
+                .allow_methods(Any)
+                .allow_headers(Any),
+        )
         .with_state(app_state)
 }

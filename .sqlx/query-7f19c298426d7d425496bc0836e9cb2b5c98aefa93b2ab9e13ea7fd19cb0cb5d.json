@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "select agent_id\n                from conversations\n                where id = $1\n                and user_id = $2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "agent_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "7f19c298426d7d425496bc0836e9cb2b5c98aefa93b2ab9e13ea7fd19cb0cb5d"
+}

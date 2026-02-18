@@ -1,0 +1,71 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "select name, emotion, favorability, character_design, response_requirement,\n            character_emotion_split, model, temperature, max_tokens\n            from agents where id = $1 and user_id = $2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "emotion",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "favorability",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "character_design",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "response_requirement",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "character_emotion_split",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "model",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "temperature",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 8,
+        "name": "max_tokens",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "7f6e4aa1c19b0be459f45adc9af25d52da864d7dbcecee27f92839576a95a071"
+}

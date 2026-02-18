@@ -1,5 +1,4 @@
 use crate::api::extractors::auth_user::AuthUser;
-use crate::api::handlers::create_message::ChatMessage;
 use crate::app_state::AppState;
 use crate::errors::AppResult;
 use axum::Json;

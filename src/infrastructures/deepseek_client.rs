@@ -5,7 +5,6 @@ use ds_api::{Message, Response as _, Role};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use tracing::info;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Response {
@@ -77,7 +76,7 @@ impl DeepseekClient {
                             .as_str(),
                     ) {
                         history.push(json!({
-                        "role": "user",
+                        "role": "assistant",
                         "content": response.response,
                         }))
                     }

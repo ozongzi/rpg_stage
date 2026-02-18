@@ -1,5 +1,5 @@
 use axum::extract::Path;
-use axum::{Json, extract::State, http::StatusCode};
+use axum::{Json, extract::State};
 use serde::Deserialize;
 use serde_json::Value;
 use uuid::Uuid;
@@ -21,10 +21,6 @@ pub async fn create_message(
     Ok(state
         .services
         .chat_service
-        .chat(
-            user_id,
-            conversation_id,
-            chat_message.content,
-        )
+        .chat(user_id, conversation_id, chat_message.content)
         .await?)
 }

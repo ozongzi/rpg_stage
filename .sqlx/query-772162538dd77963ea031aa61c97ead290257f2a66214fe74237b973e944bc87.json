@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT name, description, character_design, response_requirement, character_emotion_split, model FROM agent_metadata WHERE id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "description",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "character_design",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "response_requirement",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "character_emotion_split",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "model",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "772162538dd77963ea031aa61c97ead290257f2a66214fe74237b973e944bc87"
+}

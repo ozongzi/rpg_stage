@@ -1,5 +1,5 @@
 use serde::Serialize;
-use crate::domains::{Email, UserName, UserPassword};
+use crate::domains::{Email, UserName};
 use uuid::Uuid;
 
 #[derive(Clone, Debug, Serialize)]

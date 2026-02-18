@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "select content from agent_memories where agent_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "content",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "8b97a62da5ddfd81ae8b7f43afad5583c29e61517cd5dd60b8e497592dc158f6"
+}

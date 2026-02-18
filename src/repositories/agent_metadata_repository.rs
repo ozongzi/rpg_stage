@@ -1,4 +1,5 @@
 use crate::domains::MetaAgent;
+use crate::domains::MetaBrief;
 use crate::errors::AppResult;
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -23,6 +24,15 @@ impl AgentMetadataRepository {
         Ok(meta)
     }
 
+    pub async fn fetch_agent_meta_list(&self) -> AppResult<Vec<MetaBrief>> {
+        let meta = sqlx::query_as!(
+            MetaBrief,
+            r#"select id, name, description from agent_metadata"#,
+        )
+        .fetch_all(&self.pool)
+        .await?;
+        Ok(meta)
+    }
     pub async fn insert_metadata(&self, meta: &MetaAgent) -> AppResult<Uuid> {
         let record = sqlx::query!(
             r#"insert into agent_metadata (name, description, character_design, response_requirement, character_emotion_split, model) values ($1, $2, $3, $4, $5, $6) returning id"#,

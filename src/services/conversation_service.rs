@@ -2,7 +2,6 @@ use crate::domains::Conversation;
 use crate::errors::AppResult;
 use crate::repositories::agent_repository::AgentRepository;
 use crate::repositories::conversation_repository::ConversationRepository;
-use sqlx::PgPool;
 use uuid::Uuid;
 
 #[derive(Clone)]
@@ -37,7 +36,7 @@ impl ConversationService {
         user_id: Uuid,
     ) -> AppResult<Vec<Conversation>> {
         self.agent_repo
-            .assert_agent_belongs_to_user(user_id, agent_id)
+            .assert_agent_belongs_to_user(agent_id, user_id)
             .await?;
 
         self.repo

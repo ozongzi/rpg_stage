@@ -7,8 +7,6 @@ use axum_extra::{
     TypedHeader,
     headers::{Authorization, authorization::Bearer},
 };
-use serde_json::json;
-use sha2::Digest;
 
 use uuid::Uuid;
 

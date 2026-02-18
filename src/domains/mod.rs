@@ -6,6 +6,7 @@ mod meta_agent;
 mod user;
 mod user_name;
 mod user_password;
+mod meta_brief;
 
 pub use agent::AgentState;
 pub use agent::ChatAgent;
@@ -16,3 +17,4 @@ pub use meta_agent::MetaAgent;
 pub use user::User;
 pub use user_name::UserName;
 pub use user_password::UserPassword;
+pub use meta_brief::MetaBrief;

@@ -5,9 +5,8 @@ use crate::repositories::agent_repository::AgentRepository;
 use crate::repositories::message_repository::MessageRepository;
 use crate::repositories::user_repository::UserRepository;
 use axum::Json;
-use ds_api::{Message, Role};
+use ds_api::Role;
 use serde_json::{Value, json};
-use tracing::info;
 use uuid::Uuid;
 
 #[derive(Clone)]
@@ -38,7 +37,7 @@ impl ChatService {
         user_id: Uuid,
         conversation_id: Uuid,
     ) -> AppResult<Value> {
-        let is_vip = self.user_repository.is_vip(user_id).await?;
+        let _is_vip = self.user_repository.is_vip(user_id).await?;
 
         let mut tx = self.message_repository.begin().await?;
 
@@ -47,7 +46,7 @@ impl ChatService {
             .get_agent_id_with_conversation_id_and_user_id(&mut tx, conversation_id, user_id)
             .await?;
 
-        let agent = self
+        let _agent = self
             .agent_repository
             .get_agent_with_agent_id_and_user_id(agent_id, user_id)
             .await?;
@@ -112,6 +111,14 @@ impl ChatService {
                 .insert_memory(agent_id, &memory)
                 .await?;
         }
+
+        self.agent_repository
+            .update_agent_emotion_and_favorability(
+                agent_id,
+                response.current_emotion.clone(),
+                response.new_favorability,
+            )
+            .await?;
 
         let mut js = json!({
             "content": response.response,

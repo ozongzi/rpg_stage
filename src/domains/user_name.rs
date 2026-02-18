@@ -1,6 +1,6 @@
 use crate::errors::AppError;
 use axum::http::StatusCode;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::str::FromStr;
 
 #[derive(Serialize, Debug, Clone)]

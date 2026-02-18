@@ -1,18 +1,8 @@
-use std::time::Duration;
-
-use axum::{
-    Form,
-    extract::State,
-    http::{Response, StatusCode},
-};
-use chrono::Utc;
+use axum::{Form, extract::State};
 use serde::Deserialize;
-use sha2::Digest;
-use sqlx::query;
-use uuid::Uuid;
 
+use crate::app_state::AppState;
 use crate::errors::AppResult;
-use crate::{app_state::AppState, domains::Email};
 
 #[derive(Deserialize)]
 pub struct LoginForm {

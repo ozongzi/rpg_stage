@@ -1,3 +1,4 @@
+use crate::domains::MetaBrief;
 use crate::domains::{AgentState, MetaAgent};
 use crate::errors::AppResult;
 use crate::repositories::agent_metadata_repository::AgentMetadataRepository;
@@ -27,6 +28,10 @@ impl AgentService {
 
     pub async fn get_agent_states_list(&self, user_id: Uuid) -> AppResult<Vec<AgentState>> {
         self.repo.fetch_agent_state_list_by_user_id(user_id).await
+    }
+
+    pub async fn get_agent_meta_list(&self) -> AppResult<Vec<MetaBrief>> {
+        self.meta_repo.fetch_agent_meta_list().await
     }
 
     pub async fn new_agent_meta(&self, meta: &MetaAgent) -> AppResult<Uuid> {
