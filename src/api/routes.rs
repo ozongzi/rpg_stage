@@ -7,6 +7,8 @@ use axum::Router;
 use axum::routing::{delete, get, post};
 use sqlx::PgPool;
 use tower_http::cors::{Any, CorsLayer};
+use tower_http::services::ServeDir;
+
 pub async fn create_app() -> Router {
     let configuration = get_configuration().unwrap();
 
@@ -53,6 +55,7 @@ pub async fn create_app() -> Router {
         // // ========== Admin ==========
         // .route("/admin/sessions", get(list_sessions))
         // .route("/admin/sessions/{id}", delete(force_logout))
+        .fallback_service(ServeDir::new("client/dist"))
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)
