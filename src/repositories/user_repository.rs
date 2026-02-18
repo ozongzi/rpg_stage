@@ -1,8 +1,7 @@
-use sqlx::{PgPool, query_as};
-use std::result;
+use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::domains::{User, UserPassword};
+use crate::domains::User;
 use crate::{
     domains::{Email, UserName},
     errors::AppResult,

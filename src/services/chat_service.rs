@@ -7,6 +7,7 @@ use crate::repositories::user_repository::UserRepository;
 use axum::Json;
 use ds_api::{Message, Role};
 use serde_json::{Value, json};
+use tracing::info;
 use uuid::Uuid;
 
 #[derive(Clone)]

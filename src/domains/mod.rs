@@ -1,13 +1,18 @@
 mod agent;
 mod chat_message;
+mod conversation;
 mod email;
+mod meta_agent;
 mod user;
 mod user_name;
 mod user_password;
 
+pub use agent::AgentState;
 pub use agent::ChatAgent;
 pub use chat_message::ChatMessage;
+pub use conversation::Conversation;
 pub use email::Email;
+pub use meta_agent::MetaAgent;
 pub use user::User;
 pub use user_name::UserName;
 pub use user_password::UserPassword;

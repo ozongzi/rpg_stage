@@ -32,18 +32,23 @@ pub async fn create_app() -> Router {
         // .route("/users/{id}", get(get_user)) // 管理员查看用户
         // .route("/users/{id}", patch(update_user)) // 管理员修改
         // .route("/users/{id}", delete(delete_user)) // 管理员删除
+        // =========== metadata ==========
+        .route("/agent_metas", post(create_agent_meta))
         // // ========== Agents ==========
-        // .route("/agents", post(create_agent))
-        // .route("/agents", get(list_agents))
-        // .route("/agents/{id}", get(get_agent))
+        .route("/agents", post(create_agent))
+        .route("/agents", get(list_agents))
+        .route("/agents/{id}", get(get_agent))
         // .route("/agents/{id}", patch(update_agent))
         // .route("/agents/{id}", delete(delete_agent))
         // // ========== Conversations ==========
-        // .route("/conversations", post(create_conversation))
-        // .route("/conversations", get(list_conversations))
-        // .route("/conversations/{id}", get(get_conversation))
-        // .route("/conversations/{id}", patch(update_conversation))
-        // .route("/conversations/{id}", delete(delete_conversation))
+        .route(
+            "/agents/{agent_id}/conversations",
+            post(create_conversation),
+        )
+        .route("/agents/{agent_id}/conversations", get(list_conversations))
+        // .route("/agents/{agent_id}/conversations/{id}", get(get_conversation))
+        // .route("/agents/{agent_id}/conversations/{id}", patch(update_conversation))
+        // .route("/agents/{agent_id}/conversations/{id}", delete(delete_conversation))
         // // ========== Messages ==========
         .route("/conversations/{id}/messages", post(create_message))
         .route("/conversations/{id}/messages", get(list_messages))

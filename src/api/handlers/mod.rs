@@ -1,16 +1,28 @@
+mod create_agent;
+mod create_agent_meta;
+mod create_conversation;
 mod create_message;
 mod create_user;
 mod delete_user;
+mod get_agent;
 mod health_check;
+mod list_agents;
+mod list_conversations;
 mod list_messages;
 mod list_users;
 mod login;
 mod logout;
 
+pub use create_agent::create_agent;
+pub use create_agent_meta::create_agent_meta;
+pub use create_conversation::create_conversation;
 pub use create_message::create_message;
 pub use create_user::create_user;
 pub use delete_user::delete_user;
+pub use get_agent::get_agent;
 pub use health_check::health_check;
+pub use list_agents::list_agents;
+pub use list_conversations::list_conversations;
 pub use list_messages::list_messages;
 pub use list_users::list_users;
 pub use login::login;

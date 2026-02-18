@@ -1,12 +1,12 @@
 use axum::http::StatusCode;
 use uuid::Uuid;
 
+use crate::domains::User;
 use crate::{
     domains::{Email, UserName, UserPassword},
     errors::{AppError, AppResult},
     repositories::user_repository::UserRepository,
 };
-use crate::domains::User;
 
 pub struct CreateUserInput {
     pub name: UserName,
@@ -46,7 +46,7 @@ impl UserService {
     pub async fn is_vip(&self, user_id: Uuid) -> AppResult<bool> {
         self.repo.is_vip(user_id).await
     }
-    
+
     pub async fn list_users(&self) -> AppResult<Vec<User>> {
         self.repo.get_user_list_without_password_hash().await
     }

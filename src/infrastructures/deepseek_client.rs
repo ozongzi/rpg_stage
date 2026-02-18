@@ -5,6 +5,7 @@ use ds_api::{Message, Response as _, Role};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
+use tracing::info;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Response {
@@ -119,7 +120,10 @@ impl DeepseekClient {
 
         // c_messages.push(Message::new(Role::User, &content));
 
-        let mut request = ds_api::Request::builder().messages(c_messages).model(model);
+        let mut request = ds_api::Request::builder()
+            .messages(c_messages)
+            .model(model)
+            .json();
 
         if let Some(temperature) = agent.temperature {
             request = request.temperature(temperature as f32);
@@ -133,6 +137,8 @@ impl DeepseekClient {
             .execute_client_nostreaming(&mut self.client.clone(), &self.token)
             .await
             .map_err(|e| AppError(StatusCode::BAD_REQUEST, e.to_string().into()))?;
+
+        // info!("content = {}", response.content());
 
         Ok((
             serde_json::from_str(response.content())
@@ -180,6 +186,11 @@ fn generate_system_prompt(
 
     format!(
         "{}\n你当前的情绪是:{}\n你当前的好感度是:{}\n{}\n相关记忆：{}, {}",
-        character_design, emotion, favorability, emotion_description, memories ,response_requirement
+        character_design,
+        emotion,
+        favorability,
+        emotion_description,
+        memories,
+        response_requirement
     )
 }

@@ -1,6 +1,6 @@
 use crate::{
-    app_state::AppState,
     api::extractors::auth_user::AuthUserAdmin,
+    app_state::AppState,
     errors::{AppError, AppResult},
     services::user_service::CreateUserInput,
 };
@@ -40,5 +40,5 @@ pub async fn create_user(
         .create_user(request.try_into()?)
         .await?;
 
-    Ok(Json(json!({ "id": user_id })))
+    Ok(Json(json!({ "user_id": user_id })))
 }
