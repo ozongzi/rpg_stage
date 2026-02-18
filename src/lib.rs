@@ -1,11 +1,13 @@
+mod api;
 mod app_state;
-mod auth_user;
-mod chat;
 mod configuration;
-mod routes;
-mod types;
+mod domains;
+mod errors;
+mod infrastructures;
+mod repositories;
+mod services;
 
-use routes::create_app;
+use api::routes::create_app;
 use std::net::SocketAddr;
 
 pub async fn run() {

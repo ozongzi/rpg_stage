@@ -1,7 +1,6 @@
-use sqlx::PgPool;
+use crate::{configuration::Settings, services::Services};
 #[derive(Clone)]
 pub struct AppState {
-    pub db: PgPool,
-    pub admin_email: String,
-    pub deepseek_token: String,
+    pub services: Services,
+    pub configuration: Settings,
 }

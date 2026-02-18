@@ -1,8 +1,7 @@
 use serde::Deserialize;
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct Settings {
     pub database_url: String,
-    pub admin_email: String,
     pub deepseek_token: String,
 }
 
