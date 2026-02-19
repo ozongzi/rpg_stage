@@ -62,6 +62,21 @@ export function AgentsPage() {
         navigate(`/agents/${agentId}`);
     };
 
+    const handleDeleteAgent = async (e: React.MouseEvent, agentId: string) => {
+        e.stopPropagation();
+        if (!confirm('确定要删除该Agent吗？')) return;
+        try {
+            setLoading(true);
+            await apiService.deleteAgent(agentId);
+            await loadAgents();
+        } catch (err) {
+            const apiError = err as ApiError;
+            setError(apiError.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const cardStyle: CSSProperties = {
         backgroundColor: 'white',
         borderRadius: '8px',
@@ -257,6 +272,21 @@ export function AgentsPage() {
                                     <span>好感度:</span>
                                     <span style={{fontWeight: '600', color: '#059669'}}>{agent.favorability}</span>
                                 </div>
+                                <button
+                                    style={{
+                                        marginTop: '12px',
+                                        padding: '6px 12px',
+                                        backgroundColor: '#ef4444',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        fontSize: '13px',
+                                    }}
+                                    onClick={(e) => handleDeleteAgent(e, agent.id)}
+                                >
+                                    删除
+                                </button>
                             </div>
                         ))}
                     </div>

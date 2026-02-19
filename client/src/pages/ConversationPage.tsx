@@ -104,6 +104,22 @@ export function ConversationPage() {
     }
   };
 
+  const handleDeleteConversation = async (e: React.MouseEvent, convId: string) => {
+    e.stopPropagation();
+    if (!confirm('确定要删除该对话吗？')) return;
+    try {
+      await apiService.deleteConversation(agentId!, convId);
+      if (selectedConversation === convId) {
+        setSelectedConversation(null);
+        setMessages([]);
+      }
+      await loadConversations();
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError.message);
+    }
+  };
+
   const handleSendMessage = async (e: FormEvent) => {
     e.preventDefault();
     if (!messageInput.trim() || !selectedConversation) return;
@@ -328,7 +344,27 @@ export function ConversationPage() {
                 }
                 onClick={() => setSelectedConversation(conv.id)}
               >
-                {conv.title || '新对话'}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {conv.title || '新对话'}
+                  </span>
+                  <button
+                    style={{
+                      marginLeft: '8px',
+                      padding: '2px 8px',
+                      backgroundColor: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      flexShrink: 0,
+                    }}
+                    onClick={(e) => handleDeleteConversation(e, conv.id)}
+                  >
+                    删除
+                  </button>
+                </div>
               </div>
             ))}
           </div>

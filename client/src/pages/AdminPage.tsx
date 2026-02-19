@@ -1,14 +1,15 @@
 import {useState, useEffect} from 'react';
 import type {CSSProperties} from 'react';
 import {apiService} from '../services/api';
-import type {User, AgentMetaListItem, ApiError} from '../types';
+import type {User, AgentMetaListItem, Session, ApiError} from '../types';
 import {Layout} from '../components/common/Layout';
 import {ErrorModal} from '../components/common/ErrorModal';
 
 export function AdminPage() {
-    const [activeTab, setActiveTab] = useState<'users' | 'agent_metas'>('users');
+    const [activeTab, setActiveTab] = useState<'users' | 'agent_metas' | 'sessions'>('users');
     const [users, setUsers] = useState<User[]>([]);
     const [agentMetas, setAgentMetas] = useState<AgentMetaListItem[]>([]);
+    const [sessions, setSessions] = useState<Session[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -29,8 +30,10 @@ export function AdminPage() {
     useEffect(() => {
         if (activeTab === 'users') {
             loadUsers();
-        } else {
+        } else if (activeTab === 'agent_metas') {
             loadAgentMetas();
+        } else {
+            loadSessions();
         }
     }, [activeTab]);
 
@@ -52,6 +55,19 @@ export function AdminPage() {
             setLoading(true);
             const data = await apiService.listAgentMetas();
             setAgentMetas(data);
+        } catch (err) {
+            const apiError = err as ApiError;
+            setError(apiError.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadSessions = async () => {
+        try {
+            setLoading(true);
+            const data = await apiService.listAdminSessions();
+            setSessions(data);
         } catch (err) {
             const apiError = err as ApiError;
             setError(apiError.message);
@@ -98,6 +114,36 @@ export function AdminPage() {
             setNewMetaCharacterEmotionSplit('');
             setNewMetaModel('');
             await loadAgentMetas();
+        } catch (err) {
+            const apiError = err as ApiError;
+            setError(apiError.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteUser = async (id: string) => {
+        if (!confirm('确定要删除该用户吗？')) return;
+        try {
+            setLoading(true);
+            await apiService.deleteUser(id);
+            setSuccessMessage('用户删除成功');
+            await loadUsers();
+        } catch (err) {
+            const apiError = err as ApiError;
+            setError(apiError.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleForceLogout = async (id: string) => {
+        if (!confirm('确定要强制登出该会话吗？')) return;
+        try {
+            setLoading(true);
+            await apiService.deleteAdminSession(id);
+            setSuccessMessage('已强制登出该会话');
+            await loadSessions();
         } catch (err) {
             const apiError = err as ApiError;
             setError(apiError.message);
@@ -239,6 +285,12 @@ export function AdminPage() {
                     >
                         Agent元数据管理
                     </div>
+                    <div
+                        style={tabStyle(activeTab === 'sessions')}
+                        onClick={() => setActiveTab('sessions')}
+                    >
+                        会话管理
+                    </div>
                 </div>
 
                 {successMessage && (
@@ -329,6 +381,7 @@ export function AdminPage() {
                                     <th style={thStyle}>ID</th>
                                     <th style={thStyle}>名称</th>
                                     <th style={thStyle}>邮箱</th>
+                                    <th style={thStyle}>操作</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -337,6 +390,22 @@ export function AdminPage() {
                                         <td style={tdStyle}>{user.id}</td>
                                         <td style={tdStyle}>{user.name}</td>
                                         <td style={tdStyle}>{user.email}</td>
+                                        <td style={tdStyle}>
+                                            <button
+                                                style={{
+                                                    padding: '4px 10px',
+                                                    backgroundColor: '#ef4444',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '13px',
+                                                }}
+                                                onClick={() => handleDeleteUser(user.id)}
+                                            >
+                                                删除
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))}
                                 </tbody>
@@ -446,6 +515,57 @@ export function AdminPage() {
                                         <td style={tdStyle}>{meta.id}</td>
                                         <td style={tdStyle}>{meta.name}</td>
                                         <td style={tdStyle}>{meta.description}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </>
+                )}
+
+                {activeTab === 'sessions' && (
+                    <>
+                        <h3 style={{fontSize: '18px', fontWeight: '600', marginBottom: '16px'}}>
+                            会话列表
+                        </h3>
+                        {loading ? (
+                            <div style={{textAlign: 'center', padding: '20px', color: '#6b7280'}}>
+                                加载中...
+                            </div>
+                        ) : sessions.length === 0 ? (
+                            <div style={{textAlign: 'center', padding: '20px', color: '#9ca3af'}}>
+                                暂无会话
+                            </div>
+                        ) : (
+                            <table style={tableStyle}>
+                                <thead>
+                                <tr>
+                                    <th style={thStyle}>会话 ID</th>
+                                    <th style={thStyle}>用户 ID</th>
+                                    <th style={thStyle}>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {sessions.map((session) => (
+                                    <tr key={session.id}>
+                                        <td style={tdStyle}>{session.id}</td>
+                                        <td style={tdStyle}>{session.user_id}</td>
+                                        <td style={tdStyle}>
+                                            <button
+                                                style={{
+                                                    padding: '4px 10px',
+                                                    backgroundColor: '#ef4444',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer',
+                                                    fontSize: '13px',
+                                                }}
+                                                onClick={() => handleForceLogout(session.id)}
+                                            >
+                                                强制登出
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))}
                                 </tbody>
