@@ -56,13 +56,14 @@ pub async fn create_app() -> Router {
         // .route("/admin/sessions", get(list_sessions))
         // .route("/admin/sessions/{id}", delete(force_logout))
         .fallback_service(
-            ServeDir::new("client/dist").not_found_service(ServeFile::new("client/dist/index.html")),
+            ServeDir::new("client/dist")
+                .not_found_service(ServeFile::new("client/dist/index.html")),
         )
-        .layer(
-            CorsLayer::new()
-                .allow_origin(Any)
-                .allow_methods(Any)
-                .allow_headers(Any),
-        )
+        // .layer(
+        //     CorsLayer::new()
+        //         .allow_origin(Any)
+        //         .allow_methods(Any)
+        //         .allow_headers(Any),
+        // )
         .with_state(app_state)
 }
