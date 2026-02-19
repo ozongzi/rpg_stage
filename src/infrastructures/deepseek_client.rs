@@ -15,6 +15,13 @@ pub struct Response {
     pub new_memory: Option<String>,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct WorldRuleResponse {
+    pub allow: bool,
+    pub content: String,
+    pub suggestion: Option<String>,
+}
+
 fn message_to_chat_message(message: Message) -> ChatMessage {
     ChatMessage {
         role: message.role,
@@ -54,21 +61,51 @@ impl DeepseekClient {
         }
     }
 
+    pub async fn world_rule_check(
+        &self,
+        system_prompt: &str,
+        history: Value,
+    ) -> AppResult<WorldRuleResponse> {
+        let messages = vec![
+            Message::new(Role::System, system_prompt),
+            Message::new(Role::User, &history.to_string()),
+        ];
+
+        let request = ds_api::Request::builder()
+            .messages(messages)
+            .json()
+            .model(ds_api::Model::DeepseekChat);
+
+        let response = request
+            .execute_client_nostreaming(&mut self.client.clone(), &self.token)
+            .await
+            .map_err(|e| {
+                tracing::error!("Chat with deepseek error: {e}");
+                AppError(StatusCode::INTERNAL_SERVER_ERROR, "AI模型错误".into())
+            })?;
+
+        serde_json::from_str(response.content()).map_err(|e| {
+            tracing::error!("Parse response error: {e}");
+            AppError(StatusCode::INTERNAL_SERVER_ERROR, "AI模型错误".into())
+        })
+    }
+
     pub async fn get_chat_history_via_chat_messages(
         &self,
-        chat_messages: Vec<ChatMessage>,
+        chat_messages: &Vec<ChatMessage>,
     ) -> AppResult<Value> {
         let mut history = vec![];
         for message in chat_messages {
             match message.role {
                 Role::User => history.push(json!({
                 "role": "user",
-                "content": message.content,
+                "content": message.content.clone(),
                 })),
                 Role::Assistant => {
                     if let Ok(response) = serde_json::from_str::<Response>(
                         message
                             .content
+                            .clone()
                             .ok_or(AppError(
                                 StatusCode::INTERNAL_SERVER_ERROR,
                                 "message错误".into(),
@@ -193,3 +230,35 @@ fn generate_system_prompt(
         response_requirement
     )
 }
+
+pub const WORLD_RULE_PROMPT: &str = r#"
+你是「世界的法则」。
+你的职责是维护当前世界设定的逻辑一致性和合理性。
+你不是内容审查系统，而是世界规则的守护者。
+你的目标是：
+判断用户输入是否违反世界观设定
+判断是否存在逻辑冲突
+判断是否提出超出当前能力体系的要求
+判断是否出现时间线冲突
+判断是否出现不可能事件
+你必须：
+保持冷静客观
+不进行道德评判
+不评价用户意图
+只从“世界逻辑”角度判断
+如果用户输入合法：
+返回：
+{
+"allow": true,
+"content": "符合当前世界规则"
+}
+如果不合法：
+返回：
+{
+"allow": false,
+"content": "具体违反的规则说明",
+"suggestion": "如何修改才能符合规则"
+}
+不要输出多余内容。
+不要解释世界观。
+只输出 JSON。"#;

@@ -1,11 +1,12 @@
-use crate::domains::ChatMessage;
 use crate::errors::AppResult;
 use crate::infrastructures::deepseek_client::DeepseekClient;
 use crate::repositories::agent_repository::AgentRepository;
 use crate::repositories::message_repository::MessageRepository;
 use crate::repositories::user_repository::UserRepository;
+use crate::{domains::ChatMessage, errors::AppError};
 use axum::Json;
 use ds_api::Role;
+use reqwest::StatusCode;
 use serde_json::{Value, json};
 use uuid::Uuid;
 
@@ -58,7 +59,7 @@ impl ChatService {
 
         Ok(self
             .deepseek_client
-            .get_chat_history_via_chat_messages(messages)
+            .get_chat_history_via_chat_messages(&messages)
             .await?)
     }
 
@@ -94,6 +95,31 @@ impl ChatService {
             .message_repository
             .list_chat_messages(&mut tx, conversation_id)
             .await?;
+
+        let history = self
+            .deepseek_client
+            .get_chat_history_via_chat_messages(&messages)
+            .await?;
+
+        let response = self
+            .deepseek_client
+            .world_rule_check(
+                crate::infrastructures::deepseek_client::WORLD_RULE_PROMPT,
+                history,
+            )
+            .await?;
+
+        if !response.allow {
+            return Err(AppError(
+                StatusCode::BAD_REQUEST,
+                format!(
+                    "用户输入不合法: {}，建议: {}",
+                    response.content,
+                    response.suggestion.unwrap_or_default()
+                )
+                .into(),
+            ));
+        }
 
         let memories = self.agent_repository.get_memories(agent_id).await?;
 
