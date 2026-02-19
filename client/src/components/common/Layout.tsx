@@ -79,9 +79,9 @@ export function Layout({children}: LayoutProps) {
                     <span style={linkStyle} onClick={() => navigate('/profile')}>
             个人资料
           </span>
-                    <span style={linkStyle} onClick={() => navigate('/admin')}>
+                    {/* <span style={linkStyle} onClick={() => navigate('/admin')}>
             管理后台
-          </span>
+          </span> */}
                     <button style={buttonStyle} onClick={handleLogout}>
                         退出登录
                     </button>
