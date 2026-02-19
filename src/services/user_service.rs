@@ -46,4 +46,64 @@ impl UserService {
     pub async fn list_users(&self) -> AppResult<Vec<User>> {
         self.repo.get_user_list_without_password_hash().await
     }
+
+    pub async fn get_user(&self, id: Uuid) -> AppResult<User> {
+        self.repo.get_user_without_password_hash(id).await
+    }
+
+    pub async fn update_user(
+        &self,
+        id: Uuid,
+        user_name: Option<UserName>,
+        email: Option<Email>,
+        new_password: Option<UserPassword>,
+    ) -> AppResult<()> {
+        let user = self.repo.get_user_by_id(id).await?;
+        let new_password_hash = new_password
+            .map(|p| bcrypt::hash(p.as_ref(), bcrypt::DEFAULT_COST))
+            .transpose()?;
+        self.repo
+            .update_user_by_id(
+                id,
+                User::new(
+                    id,
+                    user_name.unwrap_or(user.name().clone()),
+                    email.unwrap_or(user.email().clone()),
+                    new_password_hash.unwrap_or(user.password_hash().to_string()),
+                ),
+            )
+            .await
+    }
+
+    pub async fn update_user_self(
+        &self,
+        id: Uuid,
+        old_password: UserPassword,
+        user_name: Option<UserName>,
+        email: Option<Email>,
+        new_password: Option<UserPassword>,
+    ) -> AppResult<()> {
+        let user = self.repo.get_user_by_id(id).await?;
+        if bcrypt::verify(old_password.as_ref(), user.password_hash())? {
+            return Err(AppError(StatusCode::FORBIDDEN, "密码错误".into()));
+        }
+        let new_password_hash = new_password
+            .map(|p| bcrypt::hash(p.as_ref(), bcrypt::DEFAULT_COST))
+            .transpose()?;
+        self.repo
+            .update_user_by_id(
+                id,
+                User::new(
+                    id,
+                    user_name.unwrap_or(user.name().clone()),
+                    email.unwrap_or(user.email().clone()),
+                    new_password_hash.unwrap_or(user.password_hash().to_string()),
+                ),
+            )
+            .await
+    }
+    
+    pub async fn delete_user_by_id(&self, id: Uuid) -> AppResult<()> {
+        self.repo.delete_user_by_id(id).await
+    }
 }

@@ -121,7 +121,10 @@ impl AgentRepository {
         emotion: String,
         favorability: i32,
     ) -> AppResult<()> {
-        info!("update agent {} emotion = {} and favorability = {}", agent_id, emotion, favorability);
+        info!(
+            "update agent {} emotion = {} and favorability = {}",
+            agent_id, emotion, favorability
+        );
         sqlx::query!(
             r#"update agents set emotion = $1, favorability = $2 where id = $3"#,
             emotion,
@@ -149,5 +152,12 @@ impl AgentRepository {
         .await?;
 
         Ok(record)
+    }
+
+    pub async fn delete_agent_by_id(&self, agent_id: Uuid) -> AppResult<()> {
+        sqlx::query!(r#"delete from agents where id = $1"#, agent_id)
+            .execute(&self.pool)
+            .await?;
+        Ok(())
     }
 }

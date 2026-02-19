@@ -46,10 +46,16 @@ impl Services {
             agent_repository.clone(),
             message_repository,
         );
-        let agent_service =
-            AgentService::new(agent_repository.clone(), agent_metadata_repository.clone());
-        let conversation_service =
-            ConversationService::new(conversation_repository.clone(), agent_repository.clone());
+        let agent_service = AgentService::new(
+            agent_repository.clone(),
+            agent_metadata_repository.clone(),
+            user_repository.clone(),
+        );
+        let conversation_service = ConversationService::new(
+            conversation_repository.clone(),
+            agent_repository.clone(),
+            user_repository.clone(),
+        );
 
         Self {
             user_service,

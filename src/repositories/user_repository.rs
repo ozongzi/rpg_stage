@@ -76,6 +76,19 @@ impl UserRepository {
         Ok(results)
     }
 
+    pub async fn get_user_without_password_hash(&self, id: Uuid) -> AppResult<User> {
+        let result = sqlx::query!(r#"SELECT name, email FROM users WHERE id = $1"#, id)
+            .fetch_one(&self.pool)
+            .await?;
+
+        Ok(User::new(
+            id,
+            result.name.parse()?,
+            result.email.parse()?,
+            "已隐藏".to_string(),
+        ))
+    }
+
     pub async fn is_admin(&self, user_id: Uuid) -> AppResult<bool> {
         let exists = sqlx::query_scalar!(
             "select exists(
@@ -102,5 +115,41 @@ impl UserRepository {
         .await?;
 
         Ok(exists.unwrap_or(false))
+    }
+
+    pub async fn get_user_by_id(&self, user_id: Uuid) -> AppResult<User> {
+        let record = sqlx::query!(
+            "SELECT id, name, email, password_hash FROM users WHERE id = $1",
+            user_id
+        )
+        .fetch_one(&self.pool)
+        .await?;
+
+        Ok(User::new(
+            record.id,
+            record.name.parse()?,
+            record.email.parse()?,
+            record.password_hash,
+        ))
+    }
+
+    pub async fn update_user_by_id(&self, user_id: Uuid, user: User) -> AppResult<()> {
+        sqlx::query!(
+            "update users set name = $1, email = $2, password_hash = $3 where id = $4",
+            user.name().as_ref(),
+            user.email().as_ref(),
+            user.password_hash(),
+            user_id,
+        )
+        .execute(&self.pool)
+        .await?;
+        Ok(())
+    }
+
+    pub async fn delete_user_by_id(&self, user_id: Uuid) -> AppResult<()> {
+        sqlx::query!("delete from users where id = $1", user_id)
+            .execute(&self.pool)
+            .await?;
+        Ok(())
     }
 }

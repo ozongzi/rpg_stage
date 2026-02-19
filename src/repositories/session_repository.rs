@@ -1,8 +1,8 @@
+use crate::domains::SessionInfo;
+use crate::errors::AppResult;
 use chrono::{DateTime, Utc};
 use sqlx::PgPool;
 use uuid::Uuid;
-
-use crate::errors::AppResult;
 
 #[derive(Debug, Clone)]
 pub struct SessionRepository {
@@ -23,6 +23,22 @@ impl SessionRepository {
         .await?;
 
         Ok(record.user_id)
+    }
+
+    pub async fn fetch_session_infos(&self) -> AppResult<Vec<SessionInfo>> {
+        Ok(sqlx::query_as!(
+            SessionInfo,
+            r#"select user_id, id from sessions where expires_at > now()"#,
+        )
+        .fetch_all(&self.pool)
+        .await?)
+    }
+
+    pub async fn delete_session_by_id(&self, id: Uuid) -> AppResult<()> {
+        sqlx::query!("delete from sessions where id = $1", id)
+            .execute(&self.pool)
+            .await?;
+        Ok(())
     }
 
     pub async fn insert_user_id_and_token_hash(

@@ -9,7 +9,7 @@ pub struct SessionService {
     user_repo: UserRepository,
 }
 
-use crate::domains::{Email, UserPassword};
+use crate::domains::{Email, SessionInfo, UserPassword};
 use crate::errors::AppError;
 use crate::repositories::user_repository::UserRepository;
 use base64::{Engine as _, engine::general_purpose};
@@ -39,10 +39,7 @@ impl SessionService {
         password: UserPassword,
     ) -> AppResult<String> {
         let user = self.user_repo.get_user_by_email(email).await?;
-        if !bcrypt::verify(password.as_ref(), user.password_hash()).map_err(|e| {
-            tracing::error!("Failed to verify password {}", e);
-            AppError(StatusCode::INTERNAL_SERVER_ERROR, "rust密码学错误".into())
-        })? {
+        if !bcrypt::verify(password.as_ref(), user.password_hash())? {
             return Err(AppError(StatusCode::BAD_REQUEST, "邮箱或密码错误".into()));
         }
 
@@ -56,6 +53,14 @@ impl SessionService {
             .await?;
 
         Ok(token)
+    }
+    
+    pub async fn get_session_info_list(&self) -> AppResult<Vec<SessionInfo>> {
+        self.repo.fetch_session_infos().await
+    }
+    
+    pub async fn delete_session_by_id(&self, session_id: Uuid) -> AppResult<()> {
+        self.repo.delete_session_by_id(session_id).await
     }
 
     pub async fn invalidate_session(&self, token: &str) -> AppResult<()> {

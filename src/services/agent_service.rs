@@ -3,17 +3,27 @@ use crate::domains::{AgentState, MetaAgent};
 use crate::errors::AppResult;
 use crate::repositories::agent_metadata_repository::AgentMetadataRepository;
 use crate::repositories::agent_repository::AgentRepository;
+use crate::repositories::user_repository::UserRepository;
 use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct AgentService {
     repo: AgentRepository,
     meta_repo: AgentMetadataRepository,
+    user_repo: UserRepository,
 }
 
 impl AgentService {
-    pub fn new(repo: AgentRepository, meta_repo: AgentMetadataRepository) -> Self {
-        AgentService { repo, meta_repo }
+    pub fn new(
+        repo: AgentRepository,
+        meta_repo: AgentMetadataRepository,
+        user_repo: UserRepository,
+    ) -> Self {
+        AgentService {
+            repo,
+            meta_repo,
+            user_repo,
+        }
     }
 
     pub async fn create_returning_id(
@@ -42,5 +52,16 @@ impl AgentService {
         self.repo
             .fetch_agent_state_by_user_id_and_agent_id(user_id, agent_id)
             .await
+    }
+
+    pub async fn delete_agent_by_id(&self, user_id: Uuid, agent_id: Uuid) -> AppResult<()> {
+        if !self.user_repo.is_admin(user_id).await? {
+            self.repo
+                .assert_agent_belongs_to_user(agent_id, user_id)
+                .await?;
+        }
+
+        self.repo.delete_agent_by_id(agent_id).await?;
+        Ok(())
     }
 }

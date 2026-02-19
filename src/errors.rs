@@ -33,3 +33,10 @@ impl From<SqlxError> for AppError {
         }
     }
 }
+
+impl From<bcrypt::BcryptError> for AppError {
+    fn from(err: bcrypt::BcryptError) -> Self {
+        tracing::info!("{:?}", err);
+        AppError(StatusCode::INTERNAL_SERVER_ERROR, "密码学错误".into())
+    }
+}
