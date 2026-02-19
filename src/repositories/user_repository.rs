@@ -1,4 +1,5 @@
 use sqlx::PgPool;
+use tracing::info;
 use uuid::Uuid;
 
 use crate::domains::User;
@@ -38,12 +39,14 @@ impl UserRepository {
     }
 
     pub async fn get_user_by_email(&self, email: Email) -> AppResult<User> {
+        info!("Getting user by email {:?}", email);
         let result = sqlx::query!(
             "SELECT id, name, email, password_hash FROM users WHERE email = $1",
             email.as_ref()
         )
         .fetch_one(&self.pool)
         .await?;
+        info!("result = {:?}", result);
 
         Ok(User::new(
             result.id,

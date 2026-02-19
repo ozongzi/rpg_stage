@@ -1,6 +1,7 @@
 use crate::errors::AppError;
 use axum::http::StatusCode;
 use std::str::FromStr;
+#[derive(Debug)]
 pub struct UserPassword(String);
 
 impl FromStr for UserPassword {
