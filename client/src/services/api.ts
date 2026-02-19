@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { AxiosError, AxiosInstance } from 'axios';
 import { API_BASE_URL, SESSION_TOKEN_KEY } from '../utils/constants';
-import type { User, Agent, AgentMeta, AgentMetaListItem, Conversation, Message } from '../types';
+import type { User, Agent, AgentMeta, AgentMetaListItem, Conversation, Message, Session } from '../types';
 
 class ApiService {
   private api: AxiosInstance;
@@ -98,6 +98,65 @@ class ApiService {
     }
   }
 
+  async getCurrentUser(): Promise<User> {
+    try {
+      const response = await this.api.get<User>('/users/me');
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async updateCurrentUser(data: { old_password: string; name?: string; email?: string; password?: string }): Promise<User> {
+    try {
+      const params = new URLSearchParams();
+      params.append('old_password', data.old_password);
+      if (data.name !== undefined) params.append('name', data.name);
+      if (data.email !== undefined) params.append('email', data.email);
+      if (data.password !== undefined) params.append('password', data.password);
+
+      const response = await this.api.patch<User>('/users/me', params, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async getUser(id: string): Promise<User> {
+    try {
+      const response = await this.api.get<User>(`/users/${id}`);
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async updateUser(id: string, data: { name?: string; email?: string; password?: string }): Promise<User> {
+    try {
+      const params = new URLSearchParams();
+      if (data.name !== undefined) params.append('name', data.name);
+      if (data.email !== undefined) params.append('email', data.email);
+      if (data.password !== undefined) params.append('password', data.password);
+
+      const response = await this.api.patch<User>(`/users/${id}`, params, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    try {
+      await this.api.delete(`/users/${id}`);
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
   // Agent Metas
   async createAgentMeta(meta: AgentMeta): Promise<{ agent_meta_id: string }> {
     try {
@@ -164,6 +223,15 @@ class ApiService {
     }
   }
 
+  async deleteAgent(id: string): Promise<{ agent_id: string }> {
+    try {
+      const response = await this.api.delete<{ agent_id: string }>(`/agents/${id}`);
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
   // Conversations
   async createConversation(agentId: string): Promise<{ conversation_id: string }> {
     try {
@@ -183,10 +251,27 @@ class ApiService {
     }
   }
 
-  // Messages
-  async sendMessage(conversationId: string, content: string): Promise<{ content: string; emotion?: string; favorability?: number; name?: string }> {
+  async getConversation(agentId: string, id: string): Promise<Conversation> {
     try {
-      const response = await this.api.post<{ content: string; emotion?: string; favorability?: number; name?: string }>(`/conversations/${conversationId}/messages`, {
+      const response = await this.api.get<Conversation>(`/agents/${agentId}/conversations/${id}`);
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async deleteConversation(agentId: string, id: string): Promise<void> {
+    try {
+      await this.api.delete(`/agents/${agentId}/conversations/${id}`);
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  // Messages
+  async sendMessage(conversationId: string, content: string): Promise<{ content: string; emotion?: string; favorability?: number; name?: string; mind?: string }> {
+    try {
+      const response = await this.api.post<{ content: string; emotion?: string; favorability?: number; name?: string; mind?: string }>(`/conversations/${conversationId}/messages`, {
         content,
       });
       return response.data;
@@ -199,6 +284,24 @@ class ApiService {
     try {
       const response = await this.api.get<Message[]>(`/conversations/${conversationId}/messages`);
       return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  // Admin Sessions
+  async listAdminSessions(): Promise<Session[]> {
+    try {
+      const response = await this.api.get<Session[]>('/admin/sessions');
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  async deleteAdminSession(id: string): Promise<void> {
+    try {
+      await this.api.delete(`/admin/sessions/${id}`);
     } catch (error) {
       this.handleError(error);
     }

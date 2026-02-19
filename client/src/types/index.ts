@@ -38,6 +38,12 @@ export interface Message {
   emotion?: string;
   favorability?: number;
   name?: string;
+  mind?: string;
+}
+
+export interface Session {
+  id: string;
+  user_id: string;
 }
 
 export interface ApiError {
