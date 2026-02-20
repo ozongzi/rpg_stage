@@ -19,6 +19,7 @@ export function ConversationPage() {
   const [error, setError] = useState<string | null>(null);
   const [messageError, setMessageError] = useState<string | null>(null);
   const [showSidebar, setShowSidebar] = useState(true);
+  const [infoCollapsed, setInfoCollapsed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Track latest emotion and favorability from assistant messages
@@ -298,6 +299,48 @@ export function ConversationPage() {
     borderRadius: '6px',
     cursor: 'pointer',
     fontSize: '14px',
+  };
+
+  const collapseButtonStyle: CSSProperties = {
+    padding: '6px 10px',
+    backgroundColor: '#e5e7eb',
+    color: '#374151',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '13px',
+    marginLeft: 'auto',
+  };
+
+  const collapsedSidebarStyle: CSSProperties = {
+    position: 'sticky',
+    top: '20px',
+    alignSelf: 'start',
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    padding: '8px 12px',
+    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: '8px',
+  };
+
+  const collapsedNameStyle: CSSProperties = {
+    fontWeight: 'bold',
+    fontSize: '14px',
+    color: '#1f2937',
+  };
+
+  const collapsedInfoStyle: CSSProperties = {
+    fontSize: '13px',
+    color: '#6b7280',
+  };
+
+  const expandedHeaderStyle: CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
     marginBottom: '16px',
   };
 
@@ -314,66 +357,91 @@ export function ConversationPage() {
       <div className="conversation-grid" style={containerStyle}>
         <div
           className={showSidebar ? '' : 'conversation-sidebar-mobile-hidden'}
-          style={sidebarStyle}
+          style={infoCollapsed ? collapsedSidebarStyle : sidebarStyle}
         >
-          <button style={backButtonStyle} onClick={() => navigate('/')}>
-            ← 返回
-          </button>
-          {agent && (
-            <div style={agentInfoStyle}>
-              <div style={agentNameStyle}>{agent.name}</div>
-              <div style={{ fontSize: '14px', color: '#6b7280' }}>
-                情绪: {latestEmotion || agent.emotion}
+          {infoCollapsed ? (
+            <>
+              <button style={backButtonStyle} onClick={() => navigate('/')}>
+                ← 返回
+              </button>
+              {agent && (
+                <>
+                  <span style={collapsedNameStyle}>{agent.name}</span>
+                  <span style={collapsedInfoStyle}>好感度: {latestFavorability !== undefined ? latestFavorability : agent.favorability}</span>
+                  <span style={collapsedInfoStyle}>情绪: {latestEmotion || agent.emotion}</span>
+                </>
+              )}
+              <button style={collapseButtonStyle} onClick={() => setInfoCollapsed(false)}>
+                ▼ 展开
+              </button>
+            </>
+          ) : (
+            <>
+              <div style={expandedHeaderStyle}>
+                <button style={backButtonStyle} onClick={() => navigate('/')}>
+                  ← 返回
+                </button>
+                <button style={collapseButtonStyle} onClick={() => setInfoCollapsed(true)}>
+                  ▲ 折叠
+                </button>
               </div>
-              <div style={{ fontSize: '14px', color: '#6b7280' }}>
-                好感度: {latestFavorability !== undefined ? latestFavorability : agent.favorability}
-              </div>
-            </div>
-          )}
-          <button style={buttonStyle} onClick={createNewConversation}>
-            + 新建对话
-          </button>
-          <div style={{ fontSize: '14px', fontWeight: '600', color: '#6b7280' }}>
-            对话列表
-          </div>
-          <div style={conversationListContainerStyle}>
-            {conversations.map((conv) => (
-              <div
-                key={conv.id}
-                style={
-                  selectedConversation === conv.id
-                    ? selectedConversationStyle
-                    : conversationItemStyle
-                }
-                onClick={() => {
-                  setSelectedConversation(conv.id);
-                  setShowSidebar(false);
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {conv.title || '新对话'}
-                  </span>
-                  <button
-                    style={{
-                      marginLeft: '8px',
-                      padding: '2px 8px',
-                      backgroundColor: '#ef4444',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      flexShrink: 0,
-                    }}
-                    onClick={(e) => handleDeleteConversation(e, conv.id)}
-                  >
-                    删除
-                  </button>
+              {agent && (
+                <div style={agentInfoStyle}>
+                  <div style={agentNameStyle}>{agent.name}</div>
+                  <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                    情绪: {latestEmotion || agent.emotion}
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                    好感度: {latestFavorability !== undefined ? latestFavorability : agent.favorability}
+                  </div>
                 </div>
+              )}
+              <button style={buttonStyle} onClick={createNewConversation}>
+                + 新建对话
+              </button>
+              <div style={{ fontSize: '14px', fontWeight: '600', color: '#6b7280' }}>
+                对话列表
               </div>
-            ))}
-          </div>
+              <div style={conversationListContainerStyle}>
+                {conversations.map((conv) => (
+                  <div
+                    key={conv.id}
+                    style={
+                      selectedConversation === conv.id
+                        ? selectedConversationStyle
+                        : conversationItemStyle
+                    }
+                    onClick={() => {
+                      setSelectedConversation(conv.id);
+                      setShowSidebar(false);
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {conv.title || '新对话'}
+                      </span>
+                      <button
+                        style={{
+                          marginLeft: '8px',
+                          padding: '2px 8px',
+                          backgroundColor: '#ef4444',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          flexShrink: 0,
+                        }}
+                        onClick={(e) => handleDeleteConversation(e, conv.id)}
+                      >
+                        删除
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
         <div className="conversation-chat-fullheight" style={chatContainerStyle}>
