@@ -18,6 +18,7 @@ export function ConversationPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [messageError, setMessageError] = useState<string | null>(null);
+  const [showSidebar, setShowSidebar] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Track latest emotion and favorability from assistant messages
@@ -163,8 +164,6 @@ export function ConversationPage() {
   };
 
   const containerStyle: CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: '250px 1fr',
     gap: '20px',
     // height: 'calc(100vh - 120px)',
   };
@@ -311,8 +310,11 @@ export function ConversationPage() {
 
   return (
     <Layout>
-      <div style={containerStyle}>
-        <div style={sidebarStyle}>
+      <div className="conversation-grid" style={containerStyle}>
+        <div
+          className={showSidebar ? '' : 'conversation-sidebar-mobile-hidden'}
+          style={sidebarStyle}
+        >
           <button style={backButtonStyle} onClick={() => navigate('/')}>
             ← 返回
           </button>
@@ -342,7 +344,10 @@ export function ConversationPage() {
                     ? selectedConversationStyle
                     : conversationItemStyle
                 }
-                onClick={() => setSelectedConversation(conv.id)}
+                onClick={() => {
+                  setSelectedConversation(conv.id);
+                  setShowSidebar(false);
+                }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -370,10 +375,16 @@ export function ConversationPage() {
           </div>
         </div>
 
-        <div style={chatContainerStyle}>
+        <div className="conversation-chat-fullheight" style={chatContainerStyle}>
           {selectedConversation ? (
             <>
               <div style={messagesContainerStyle}>
+                <button
+                  className="conversation-sidebar-mobile-toggle"
+                  onClick={() => setShowSidebar(true)}
+                >
+                  ☰ 对话列表
+                </button>
                 {messages.map((msg, idx) => (
                   <div
                     key={idx}
