@@ -20,27 +20,11 @@ export function Layout({children}: LayoutProps) {
         backgroundColor: '#f3f4f6',
     };
 
-    const headerStyle: CSSProperties = {
-        backgroundColor: 'white',
-        borderBottom: '1px solid #e5e7eb',
-        padding: '16px 24px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-    };
-
     const titleStyle: CSSProperties = {
         fontSize: '24px',
         fontWeight: 'bold',
         color: '#1f2937',
         cursor: 'pointer',
-    };
-
-    const navStyle: CSSProperties = {
-        display: 'flex',
-        gap: '16px',
-        alignItems: 'center',
     };
 
     const linkStyle: CSSProperties = {
@@ -60,19 +44,13 @@ export function Layout({children}: LayoutProps) {
         fontWeight: '500',
     };
 
-    const contentStyle: CSSProperties = {
-        padding: '24px',
-        maxWidth: '1400px',
-        margin: '0 auto',
-    };
-
     return (
         <div style={containerStyle}>
-            <header style={headerStyle}>
+            <header className="layout-header">
                 <h1 style={titleStyle} onClick={() => navigate('/')}>
                     RPG Stage
                 </h1>
-                <nav style={navStyle}>
+                <nav className="layout-nav">
           <span style={linkStyle} onClick={() => navigate('/')}>
             Agent列表
           </span>
@@ -87,7 +65,7 @@ export function Layout({children}: LayoutProps) {
                     </button>
                 </nav>
             </header>
-            <main style={contentStyle}>{children}</main>
+            <main className="layout-content">{children}</main>
         </div>
     );
 }
