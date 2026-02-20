@@ -146,6 +146,7 @@ export function ConversationPage() {
         emotion: response.emotion,
         favorability: response.favorability,
         name: response.name,
+        mind: response.mind,
       };
       setMessages((prev) => [...prev, assistantMessage]);
       // Update latest emotion and favorability
@@ -395,6 +396,11 @@ export function ConversationPage() {
                     }
                   >
                     <div>{msg.content}</div>
+                    {msg.mind && (
+                      <div className="message-mind">
+                        💭 {msg.mind}
+                      </div>
+                    )}
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
